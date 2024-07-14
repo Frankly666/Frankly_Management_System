@@ -1,6 +1,13 @@
-import './assets/main.css'
+import { createApp } from "vue";
+import "normalize.css";
 
-import { createApp } from 'vue'
-import App from './App.vue'
+import "@/assets/style/index.less";
+import App from "./App.vue";
+import router from "./router";
+import useIcon from "./utils/useIcon";
 
-createApp(App).mount('#app')
+const app = createApp(App);
+app.use(router);
+app.use(useIcon);
+
+app.mount("#app");
