@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import loginAccount from "./login-account.vue";
 import loginPhone from "./login-phone.vue";
 import { Check, Close } from "@element-plus/icons-vue";
+import { localCache } from "@/utils/cache";
+import { ACCOUNT, ISREMPWD } from "@/global/constant";
 
-const isRemPwd = ref(false);
+const isRemPwd = ref(localCache.getCache(ISREMPWD) ?? false);
 const accountRef = ref<InstanceType<typeof loginAccount>>();
+
+watch(isRemPwd, (newValue) => {
+  if (newValue === false) localCache.removeCache(ACCOUNT);
+  localCache.removeCache(ISREMPWD);
+  localCache.setCache(ISREMPWD, newValue);
+});
 
 // 触发提交， 直接操作子组件中的函数
 function login() {

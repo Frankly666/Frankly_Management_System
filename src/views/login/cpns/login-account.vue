@@ -2,11 +2,15 @@
 import { reactive, ref } from "vue";
 import type { Account } from "../../../type";
 import type { FormInstance, FormRules } from "element-plus";
+import useLoginStore from "@/store/login/login";
+import { localCache } from "@/utils/cache";
+import { ACCOUNT, ISREMPWD } from "@/global/constant";
+import { ElMessage } from "element-plus";
 
 const ruleFormRef = ref<FormInstance>();
 const account = reactive<Account>({
-  name: "",
-  password: ""
+  name: localCache.getCache(ACCOUNT)?.name ?? "",
+  password: localCache.getCache(ACCOUNT)?.password ?? ""
 });
 
 // 帐号判断的逻辑代码
@@ -35,8 +39,19 @@ const rules = reactive<FormRules<Account>>({
 
 const requireRule = [{ required: true, trigger: "blur", message: "" }];
 
+const { getUserInfoAction } = useLoginStore();
 function submitAction() {
-  console.log("nihao");
+  // 首先需要判断name和密码是否符合, 不符合就直接弹出提示信息
+  if (!account.name || account.password.length < 6) {
+    console.log("wozaizhe");
+    ElMessage({
+      message: "请输入正确的格式!",
+      type: "warning"
+    });
+    return;
+  }
+
+  getUserInfoAction(account);
 }
 
 defineExpose({
@@ -51,7 +66,12 @@ defineExpose({
         <el-input v-model="account.name" />
       </el-form-item>
       <el-form-item label="密码" prop="password" :rules="requireRule">
-        <el-input v-model="account.password" />
+        <el-input
+          v-model="account.password"
+          type="password"
+          autocomplete="off"
+          show-password
+        />
       </el-form-item>
     </el-form>
   </div>
